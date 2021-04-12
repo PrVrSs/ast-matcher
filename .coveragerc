@@ -6,10 +6,13 @@ branch = True
 
 [report]
 # Target coverage percentage
-#fail_under = 95
+fail_under = 90
 # Regexes for lines to exclude from consideration
 exclude_lines =
     # Have to re-enable the standard pragma
     pragma: no cover
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise NotImplementedError
 # Don’t include files in the report that are 100% covered files.
 skip_covered = True

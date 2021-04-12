@@ -8,6 +8,7 @@ unit:
 		--capture=no \
 		--cov-report=term-missing \
  		--cov-config=.coveragerc \
+ 		--cov-report=xml \
 
 .PHONY: mypy
 mypy:
@@ -17,4 +18,4 @@ mypy:
 lint:
 	poetry run pylint ast_matcher
 
-test: unit
+test: lint mypy unit

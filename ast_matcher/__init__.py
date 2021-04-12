@@ -1,36 +1,18 @@
-"""AST matcher"""
-
+# mypy: ignore-errors
+# pylint: disable=undefined-variable
 import ast as py_ast
 
-from .matcher import *
-from .pattern import Pattern
+from .categories import *
+from .categories.base import BaseNode
+from .matcher import Matcher
 
 
 __all__ = (
     (
-        'findall',
         'match',
-        'replace',
-        'template',
-    ) + matcher.__all__
+    ) + categories.__all__,
 )
 
 
-def match(pattern, ast: py_ast.AST):
-    """"""
-    return Pattern(pattern).match(ast)
-
-
-def replace(pattern, repl: py_ast.AST, ast: py_ast.AST):
-    """"""
-    return Pattern(pattern).replace(repl, ast)
-
-
-def findall(pattern, ast: py_ast.AST):
-    """"""
-    return Pattern(pattern).findall(ast)
-
-
-def template(pattern):
-    """"""
-    return Pattern(pattern)
+def match(pattern: BaseNode, ast: py_ast.AST) -> Matcher:  # pylint: disable=redefined-outer-name
+    return Matcher(pattern=pattern, ast=ast)

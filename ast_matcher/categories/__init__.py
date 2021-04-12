@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+# pylint: disable=undefined-variable
 from .narrowing import *
 from .node import *
 from .traversal import *
