@@ -1,9 +1,18 @@
 [tool.poetry]
 name = "ast-matcher"
 version = "0.1.0"
-description = ""
+description = "Python AST Matcher."
 authors = ["Sergey Reshetnikov <resh.sersh@gmail.com>"]
 license = "MIT"
+
+readme = "README.md"
+repository = "https://github.com/PrVrSs/ast-matcher"
+homepage = "https://github.com/PrVrSs/ast-matcher"
+
+keywords = [
+  "AST",
+  "Pattern Matching",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"

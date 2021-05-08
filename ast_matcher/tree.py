@@ -34,8 +34,10 @@ def walker(start_pattern: BaseNode, tree: ast.AST) -> BaseNode:
     while todo:
         patterns, node = todo.popleft()
 
-        next_patterns = list(flatten(pattern.last_m for pattern in patterns if pattern.match(node)))
-        next_patterns.append(start_pattern)
+        next_patterns = list(chain(
+            [start_pattern],
+            flatten(pattern.last_m for pattern in patterns if pattern.match(node)),
+        ))
 
         todo.extendleft(zip(repeat(next_patterns), ast.iter_child_nodes(node)))
 
@@ -44,7 +46,7 @@ def walker(start_pattern: BaseNode, tree: ast.AST) -> BaseNode:
 
 def group_children(variation):
     return [
-        (ast_node, list(chain.from_iterable((variation_iter(children)))))
+        (ast_node, list(flatten(variation_iter(children))))
         for ast_node, children in variation
     ]
 
@@ -62,12 +64,27 @@ def get_children(variation):
             for child in children
         ])
 
-    return list(product(*reversed(trees)))
+    return list(product(*trees))
 
 
 def variation_iter(variations):
     for variation in variations:
         yield list(get_children(variation))
+
+
+def invalid_node(node_a, node_b):
+    return node_a == node_b or node_a.lineno < node_b.lineno
+
+
+def combine_tree(trees, variation):
+    for tree in trees:
+        if any(invalid_node(variation.ast_node, ast_n) for ast_n, _ in tree):
+            continue
+
+        yield list(chain(
+            [(variation.ast_node, combine(variation.items))],
+            tree,
+        ))
 
 
 def combine(nodes):
@@ -76,29 +93,21 @@ def combine(nodes):
 
     start, *tail = nodes
 
-    result = [
+    trees = [
         [(variation.ast_node, combine(variation.items))]
         for variation in start.variations
     ]
 
     for node in tail:
-        tmp = []
-        for variation in node.variations:
-            for tree in result:
-                for ast_n, _ in tree:
-                    if variation.ast_node == ast_n or variation.ast_node.lineno < ast_n.lineno:
-                        break
-                else:
-                    new_tree = tree[:]
-                    new_tree.append((variation.ast_node, combine(variation.items)))
-                    tmp.append(new_tree)
+        trees = list(flatten([
+            combine_tree(trees, variation)
+            for variation in node.variations
+        ]))
 
-        if len(tmp) == 0:
+        if len(trees) == 0:
             return
 
-        result = tmp
-
-    return result
+    return trees
 
 
 def flat(node):
